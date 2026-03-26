@@ -13,11 +13,10 @@ on:
       resource_group_name: { required: true }
       storage_account_name: { required: true }
       container_name: { required: true }
-      
+
 permissions:
   id-token: write
   contents: read
-
 
 jobs:
   setup:
@@ -29,19 +28,17 @@ jobs:
       - name: Determine Branch Mapping
         id: branch_logic
         shell: powershell
-        run: |           
+        run: |
             $envInput = "${{ inputs.environment }}".ToLower()
             $actualBranch = "${{ github.ref_name }}".ToLower()                
             $expectedBranch = if ($envInput -match "production|drhub") { "main" } else { $envInput }
-              Write-Host "Checking: Environment [$envInput] needs Branch [$expectedBranch]. You are on [$actualBranch]."
-             
-               if ($actualBranch -ne $expectedBranch) {
-               Write-Host "::error::VALIDATION FAILED! Cannot run $envInput from $actualBranch branch."               exit 1
-              }      
-              Write-Host "SUCCESS: Deployment Allowed."
-              "branch=$expectedBranch" >> $env:GITHUB_OUTPUT
-          
-          
+            Write-Host "Checking: Environment [$envInput] needs Branch [$expectedBranch]. You are on [$actualBranch]."
+            if ($actualBranch -ne $expectedBranch) {
+              Write-Host "::error::VALIDATION FAILED! Cannot run $envInput from $actualBranch branch."
+              exit 1
+            }      
+            "branch=$expectedBranch" >> $env:GITHUB_OUTPUT
+
   infrastructure-validation:
     needs: setup
     environment: ${{ inputs.environment }}-plan
@@ -76,13 +73,18 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.tenant_id }}
           ARM_USE_OIDC: true
         run: |
-          terraform init -reconfigure `
-            -backend-config="resource_group_name=${{ secrets.resource_group_name }}" `
-            -backend-config="storage_account_name=${{ secrets.storage_account_name }}" `
-            -backend-config="container_name=${{ secrets.container_name }}" `
-            -backend-config="key=${{ inputs.tf_state_key }}" `
-            -backend-config="use_azuread_auth=true"          
+          if (Test-Path ".terraform") { Remove-Item -Recurse -Force .terraform }
+          $initArgs = @(
+            "init", "-reconfigure",
+            "-backend-config=resource_group_name=${{ secrets.resource_group_name }}",
+            "-backend-config=storage_account_name=${{ secrets.storage_account_name }}",
+            "-backend-config=container_name=${{ secrets.container_name }}",
+            "-backend-config=key=${{ inputs.tf_state_key }}",
+            "-backend-config=use_azuread_auth=true"
+          )
+          & terraform $initArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # SHA variable hata diya hai taaki .tf files chhedni na padein
           terraform plan -out=tfplan -input=false
 
       - uses: actions/upload-artifact@v4
@@ -125,14 +127,25 @@ jobs:
           subscription-id: ${{ secrets.subscription_id }}
 
       - name: Terraform Apply
+        env:
+          ARM_CLIENT_ID: ${{ secrets.client_id }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.subscription_id }}
+          ARM_TENANT_ID: ${{ secrets.tenant_id }}
+          ARM_USE_OIDC: true
         run: |
-          terraform init -reconfigure `
-            -backend-config="resource_group_name=${{ secrets.resource_group_name }}" `
-            -backend-config="storage_account_name=${{ secrets.storage_account_name }}" `
-            -backend-config="container_name=${{ secrets.container_name }}" `
-            -backend-config="key=${{ inputs.tf_state_key }}" `
-            -backend-config="use_azuread_auth=true"
-
+          $initArgs = @(
+            "init", "-reconfigure",
+            "-backend-config=resource_group_name=${{ secrets.resource_group_name }}",
+            "-backend-config=storage_account_name=${{ secrets.storage_account_name }}",
+            "-backend-config=container_name=${{ secrets.container_name }}",
+            "-backend-config=key=${{ inputs.tf_state_key }}",
+            "-backend-config=use_azuread_auth=true"
+          )
+          & terraform $initArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-          terraform apply -auto-approve tfplan
+          if (Test-Path "tfplan") {
+            terraform apply -auto-approve tfplan
+          } else {
+            Write-Error "tfplan missing!"
+            exit 1
+          }
