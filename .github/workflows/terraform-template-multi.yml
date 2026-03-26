@@ -94,7 +94,7 @@ jobs:
     with:
       environment: ${{ inputs.environment }}
       requestor: ${{ github.actor }}
-      secrets: inherit
+    secrets: inherit
 
   infrastructure-deployment:
     needs: [infrastructure-validation, deployment-gatekeeper]
