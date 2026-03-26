@@ -132,5 +132,5 @@ jobs:
             -backend-config="container_name=${{ secrets.container_name }}" `
             -backend-config="key=${{ inputs.tf_state_key }}" `
             -backend-config="use_azuread_auth=true"
-          terraform plan -out=tfplan -input=false
+          
           terraform apply -auto-approve tfplan
