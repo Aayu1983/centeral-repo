@@ -11,6 +11,7 @@ on:
         type: string
 
 jobs:
+  
   print-details:
     runs-on: [self-hosted, Windows]
     steps:
@@ -20,9 +21,12 @@ jobs:
           Write-Host "Requested By: ${{ inputs.requestor }}"
           Write-Host "Target Environment: ${{ inputs.environment }}"
 
- 
-  call-approval:
-    needs: print-details  
-    uses: Aayu1983/centeral-repo/.github/workflows/approval-template.yml@main
-    with:
-      environment: ${{ inputs.environment }}
+  
+  wait-for-approval:
+    needs: print-details
+    runs-on: [self-hosted, Windows]
+    environment: ${{ inputs.environment }} # Ye line GitHub par "Approve/Reject" ka button dikhayegi
+    steps:
+      - name: Approved
+        shell: powershell
+        run: Write-Host "Approval received for ${{ inputs.environment }}!"
