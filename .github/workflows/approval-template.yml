@@ -11,18 +11,18 @@ on:
         type: string
 
 jobs:
-  gatekeeper:
-    name: "Approval for ${{ inputs.environment }}"
-    uses: Aayu1983/centeral-repo/.github/workflows/approval-template.yml@main
-    runs-on: [self-hosted, Windows]    
-    environment: ${{ inputs.environment }} 
+  print-details:
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Display Deployment Details
         shell: powershell
         run: |
-          Write-Host "--"
-          Write-Host "DEPLOYMENT REQUEST DETAILS"
           Write-Host "Requested By: ${{ inputs.requestor }}"
           Write-Host "Target Environment: ${{ inputs.environment }}"
-          Write-Host "Status: Awaiting Approval..."
-          Write-Host "----------------------------------------------"
+
+ 
+  call-approval:
+    needs: print-details  # Ye line zaroori hai taaki pehle details print hon phir ye chale
+    uses: Aayu1983/centeral-repo/.github/workflows/approval-template.yml@main
+    with:
+      environment: ${{ inputs.environment }}
