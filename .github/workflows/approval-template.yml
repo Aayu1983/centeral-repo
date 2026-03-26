@@ -22,7 +22,7 @@ jobs:
 
  
   call-approval:
-    needs: print-details  # Ye line zaroori hai taaki pehle details print hon phir ye chale
+    needs: print-details  
     uses: Aayu1983/centeral-repo/.github/workflows/approval-template.yml@main
     with:
       environment: ${{ inputs.environment }}
