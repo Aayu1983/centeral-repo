@@ -25,7 +25,7 @@ jobs:
   wait-for-approval:
     needs: print-details
     runs-on: [self-hosted, Windows]
-    environment: ${{ inputs.environment }} # Ye line GitHub par "Approve/Reject" ka button dikhayegi
+    environment: ${{ inputs.environment }} 
     steps:
       - name: Approved
         shell: powershell
