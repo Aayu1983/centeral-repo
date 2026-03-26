@@ -13,6 +13,11 @@ on:
       resource_group_name: { required: true }
       storage_account_name: { required: true }
       container_name: { required: true }
+      
+permissions:
+  id-token: write
+  contents: read
+
 
 jobs:
   setup:
