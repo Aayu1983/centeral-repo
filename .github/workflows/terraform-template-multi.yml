@@ -136,5 +136,6 @@ jobs:
             -backend-config="storage_account_name=${{ secrets.storage_account_name }}" `
             -backend-config="container_name=${{ secrets.container_name }}" `
             -backend-config="key=${{ inputs.tf_state_key }}" `
-            -backend-config="use_azuread_auth=true"           
+            -backend-config="use_azuread_auth=true"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           terraform apply -auto-approve tfplan
