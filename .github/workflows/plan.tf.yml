@@ -36,7 +36,7 @@ permissions:
 jobs:
   plan:
     name: "Plan - ${{ inputs.target_env }} | ${{ inputs.change_ref }}"
-    runs-on: [self-hosted, Windows]
+    runs-on: windows-latest
     environment: ${{ inputs.target_env }}
     timeout-minutes: 60
 
@@ -65,6 +65,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.selected_branch }}
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false 
 
       - name: Capture exact commit SHA
         id: capture_sha
