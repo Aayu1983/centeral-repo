@@ -35,7 +35,7 @@ jobs:
           } else {
             $branch = $env_input
           }
-          echo "branch=$branch" >> $env:GITHUB_OUTPUT
+          "branch=$branch" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
       - name: Validate dispatch branch matches environment rule.
         shell: powershell
