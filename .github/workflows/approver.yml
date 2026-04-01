@@ -6,7 +6,7 @@ on:
       target_env:
         required: true
         type: string
-      change_ticket:
+      change_ref:
         required: true
         type: string
       change_reason:
