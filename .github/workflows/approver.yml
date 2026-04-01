@@ -19,7 +19,7 @@ permissions:
 jobs:
   approval:
     name: "Approval - ${{ inputs.target_env }} "
-    runs-on: [self-hosted, Windows]
+    runs-on: windows-latest
     timeout-minutes: 1440
 
     environment: approver
@@ -29,6 +29,5 @@ jobs:
         shell: powershell
         run: |
           Write-Host "Waiting for approval in environment 'approver'..."
-          Write-Host "Target env: ${{ inputs.target_env }}"
-          Write-Host "Ticket: ${{ inputs.change_ticket }}"
+          Write-Host "Target env: ${{ inputs.target_env }}"          
           Write-Host "Reason: ${{ inputs.change_reason }}"
