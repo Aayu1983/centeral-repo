@@ -20,7 +20,7 @@ permissions:
 jobs:
   setup:
     name: "Evaluate environment branch rule"
-    runs-on: [self-hosted, Windows]
+    runs-on: windows-latest
     outputs:
       selected_branch: ${{ steps.determine_branch.outputs.branch }}
 
